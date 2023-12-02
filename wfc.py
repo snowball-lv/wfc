@@ -6,6 +6,7 @@ import json
 import os
 import math
 import random
+import psutil
 
 def usage():
     print("Usage: ./wfc.py path_to_tile_dir")
@@ -22,13 +23,44 @@ class Cell:
     def is_valid(self):
         return len(self.domain) > 0
 
+class Interpolator:
+
+    def __init__(self):
+        self.restart(0, 0)
+
+    def restart(self, a, b, duration = 1.0):
+        self.a = a
+        self.b = b
+        self.value = a
+        self.duration = duration
+        self.start_time = pygame.time.get_ticks()
+        self.done = False
+
+    def get_delta(self):
+        now = pygame.time.get_ticks()
+        return (now - self.start_time) / 1000
+
+    def update(self):
+        progress = self.get_delta() / self.duration
+        if progress > 1:
+            self.value = self.b
+            self.done = True
+            return
+        mul = (1 - math.cos(math.pi * progress)) / 2
+        self.value = self.a + mul * (self.b - self.a)
+
+
+
 class Grid:
 
     def __init__(self, game):
         self.game = game
         self.width = 4
-        self.height = 4
+        self.height = 1
+        self.timer = pygame.time.get_ticks()
         self.rows = []
+        self.dy = 0
+        self.interp = Interpolator()
         for _ in range(self.height):
             self.rows.append([Cell() for _ in range(self.width)])
         desc_path = os.path.join(game.tile_dir, "tiles.json")
@@ -42,6 +74,12 @@ class Grid:
         for tile in self.tile_desc["tiles"]:
             img_path = os.path.join(game.tile_dir, tile["image"])
             self.atlas.append(pygame.image.load(img_path))
+
+    def new_row(self):
+        row = [Cell() for _ in range(self.width)]
+        for cell in row:
+            cell.domain = set(self.domain)
+        return row
 
     def pad_rect(self, rect):
         return next((x + 20, y + 20, w - 40, h - 40) for x, y, w, h in [rect])
@@ -59,18 +97,18 @@ class Grid:
         return blended
 
     def draw_label(self, x, y, bounds):
-        bounds = self.pad_rect(bounds)
+        # bounds = self.pad_rect(bounds)
         cell = self.rows[y][x]
         font = self.game.font
         dim = math.ceil(math.sqrt(len(cell.domain)))
         if dim == 0:
             return
-        # blended image
-        images = [self.atlas[i] for i in cell.domain]
-        img = self.blend_images(images)
-        img = pygame.transform.scale(img, bounds[2:4])
-        self.game.win.blit(img, bounds[:2])
-        return
+        # # blended image
+        # images = [self.atlas[i] for i in cell.domain]
+        # img = self.blend_images(images)
+        # img = pygame.transform.scale(img, bounds[2:4])
+        # self.game.win.blit(img, bounds[:2])
+        # return
         lsize = bounds[2] / dim
         for i, v in enumerate(cell.domain):
             lx = bounds[0] + (i % dim) * lsize
@@ -91,20 +129,27 @@ class Grid:
         win_width, win_height = pygame.display.get_surface().get_size()
         size = win_width / self.width
         abs_x = x * size
-        abs_y = win_height - (y + 1) * size
+        abs_y = win_height - (y + 1) * size + self.dy
         rect = (abs_x, abs_y, size, size)
         pygame.draw.rect(self.game.win, (200, 0, 0), rect)
         self.draw_label(x, y, rect)
 
     def draw(self):
-        for y in range(self.height):
-            for x in range(self.width):
+        win_width, win_height = pygame.display.get_surface().get_size()
+        size = win_width / self.width
+        top = win_height - (self.height) * size + self.dy
+        if top < 0 and self.interp.done:
+            self.interp.restart(self.dy, self.dy + abs(top) + 50)
+        first_y = math.floor(self.dy / size)
+        # print(f"first y {first_y}")
+        for y in range(first_y, self.height):
+            for x in range(0, self.width):
                 self.draw_cell(x, y)
 
     def pick_cell(self):
         cells = []
         for y in range(self.height):
-            for x in range(self.height):
+            for x in range(self.width):
                 cell = self.rows[y][x]
                 if cell.is_collapsed():
                     continue
@@ -165,11 +210,24 @@ class Grid:
         x, y, cell = self.pick_cell()
         if not cell:
             print("nothing to collapse!")
+            self.rows.append(self.new_row())
+            self.height += 1
+            self.propagate()
             return
         v = random.choice(list(cell.domain))
         print(f"collapsing {x}, {y}, ({len(cell.domain)}) to {v}")
         cell.domain = set([v])
         self.propagate()
+
+    def update(self, delta):
+        self.interp.update()
+        self.dy = self.interp.value
+        now = pygame.time.get_ticks()
+        if now - self.timer > 1000:
+            self.collapse()
+            # process = psutil.Process()
+            # print(f"{process.memory_info().rss / 1000000} MB")
+            self.timer = pygame.time.get_ticks()
 
 class MyGame:
 
@@ -183,9 +241,12 @@ class MyGame:
     def collapse(self):
         self.grid.collapse()
 
+    def update(self, delta):
+        self.grid.update(delta)
+
     def run(self):
         pygame.init()
-        self.win = pygame.display.set_mode((400, 800))
+        self.win = pygame.display.set_mode((400, 733))
         self.font = pygame.font.Font(None, 24)
         clock = pygame.time.Clock()
         running = True
@@ -200,6 +261,7 @@ class MyGame:
                         running = False
                     elif e.key == pygame.K_SPACE:
                         self.collapse()
+            self.update(delta)
             self.draw(delta)
             pygame.display.flip()
         pygame.quit()
