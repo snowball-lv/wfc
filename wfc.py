@@ -85,16 +85,27 @@ class Grid:
         return next((x + 20, y + 20, w - 40, h - 40) for x, y, w, h in [rect])
 
     def blend_images(self, imgs):
+        # img = imgs[0].convert()
+        # for i in range(1, len(imgs)):
+        #     img.blit(imgs[i], (0, 0), special_flags = pygame.BLEND_RGB_MULT)
+        # return img
+        img = imgs[0].convert()
         alpha = 255 // len(imgs)
-        blended = None
-        for img in imgs:
-            cp = img.copy()
+        for i in range(1, len(imgs)):
+            cp = imgs[i].copy()
             cp.set_alpha(alpha)
-            if not blended:
-                blended = cp
-            else:
-                blended.blit(img, (0, 0))
-        return blended
+            img.blit(cp, (0, 0))
+        return img
+        # alpha = 255 // len(imgs)
+        # blended = None
+        # for img in imgs:
+        #     cp = img.copy()
+        #     cp.set_alpha(alpha)
+        #     if not blended:
+        #         blended = cp
+        #     else:
+        #         blended.blit(img, (0, 0))
+        # return blended
 
     def draw_label(self, x, y, bounds):
         # bounds = self.pad_rect(bounds)
@@ -103,12 +114,12 @@ class Grid:
         dim = math.ceil(math.sqrt(len(cell.domain)))
         if dim == 0:
             return
-        # # blended image
-        # images = [self.atlas[i] for i in cell.domain]
-        # img = self.blend_images(images)
-        # img = pygame.transform.scale(img, bounds[2:4])
-        # self.game.win.blit(img, bounds[:2])
-        # return
+        # blended image
+        images = [self.atlas[i] for i in cell.domain]
+        img = self.blend_images(images)
+        img = pygame.transform.scale(img, bounds[2:4])
+        self.game.win.blit(img, bounds[:2])
+        return
         lsize = bounds[2] / dim
         for i, v in enumerate(cell.domain):
             lx = bounds[0] + (i % dim) * lsize

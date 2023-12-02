@@ -1,0 +1,274 @@
+{
+    "tiles": [
+        {
+            "image": "0.png",
+            "constraints": {
+                "left": [],
+                "right": [],
+                "up": [],
+                "down": []
+            }
+        },
+        {
+            "image": "1.png",
+            "constraints": {
+                "left": [],
+                "right": [],
+                "up": [],
+                "down": []
+            }
+        },
+        {
+            "image": "2.png",
+            "constraints": {
+                "left": [],
+                "right": [],
+                "up": [],
+                "down": []
+            }
+        },
+        {
+            "image": "3.png",
+            "constraints": {
+                "left": [],
+                "right": [],
+                "up": [],
+                "down": []
+            }
+        },
+        {
+            "image": "4.png",
+            "constraints": {
+                "left": [],
+                "right": [],
+                "up": [],
+                "down": []
+            }
+        },
+        {
+            "image": "5.png",
+            "constraints": {
+                "left": [],
+                "right": [],
+                "up": [],
+                "down": []
+            }
+        },
+        {
+            "image": "6.png",
+            "constraints": {
+                "left": [],
+                "right": [],
+                "up": [],
+                "down": []
+            }
+        },
+        {
+            "image": "7.png",
+            "constraints": {
+                "left": [],
+                "right": [],
+                "up": [],
+                "down": []
+            }
+        },
+        {
+            "image": "8.png",
+            "constraints": {
+                "left": [],
+                "right": [],
+                "up": [],
+                "down": []
+            }
+        },
+        {
+            "image": "9.png",
+            "constraints": {
+                "left": [],
+                "right": [],
+                "up": [],
+                "down": []
+            }
+        },
+        {
+            "image": "10.png",
+            "constraints": {
+                "left": [],
+                "right": [],
+                "up": [],
+                "down": []
+            }
+        },
+        {
+            "image": "11.png",
+            "constraints": {
+                "left": [],
+                "right": [],
+                "up": [],
+                "down": []
+            }
+        },
+        {
+            "image": "12.png",
+            "constraints": {
+                "left": [],
+                "right": [],
+                "up": [],
+                "down": []
+            }
+        },
+        {
+            "image": "13.png",
+            "constraints": {
+                "left": [],
+                "right": [],
+                "up": [],
+                "down": []
+            }
+        },
+        {
+            "image": "14.png",
+            "constraints": {
+                "left": [],
+                "right": [],
+                "up": [],
+                "down": []
+            }
+        },
+        {
+            "image": "15.png",
+            "constraints": {
+                "left": [],
+                "right": [],
+                "up": [],
+                "down": []
+            }
+        },
+        {
+            "image": "16.png",
+            "constraints": {
+                "left": [],
+                "right": [],
+                "up": [],
+                "down": []
+            }
+        },
+        {
+            "image": "17.png",
+            "constraints": {
+                "left": [],
+                "right": [],
+                "up": [],
+                "down": []
+            }
+        },
+        {
+            "image": "18.png",
+            "constraints": {
+                "left": [],
+                "right": [],
+                "up": [],
+                "down": []
+            }
+        },
+        {
+            "image": "19.png",
+            "constraints": {
+                "left": [],
+                "right": [],
+                "up": [],
+                "down": []
+            }
+        },
+        {
+            "image": "20.png",
+            "constraints": {
+                "left": [],
+                "right": [],
+                "up": [],
+                "down": []
+            }
+        },
+        {
+            "image": "21.png",
+            "constraints": {
+                "left": [],
+                "right": [],
+                "up": [],
+                "down": []
+            }
+        },
+        {
+            "image": "22.png",
+            "constraints": {
+                "left": [],
+                "right": [],
+                "up": [],
+                "down": []
+            }
+        },
+        {
+            "image": "23.png",
+            "constraints": {
+                "left": [],
+                "right": [],
+                "up": [],
+                "down": []
+            }
+        },
+        {
+            "image": "24.png",
+            "constraints": {
+                "left": [],
+                "right": [],
+                "up": [],
+                "down": []
+            }
+        },
+        {
+            "image": "25.png",
+            "constraints": {
+                "left": [],
+                "right": [],
+                "up": [],
+                "down": []
+            }
+        },
+        {
+            "image": "26.png",
+            "constraints": {
+                "left": [],
+                "right": [],
+                "up": [],
+                "down": []
+            }
+        },
+        {
+            "image": "27.png",
+            "constraints": {
+                "left": [],
+                "right": [],
+                "up": [],
+                "down": []
+            }
+        },
+        {
+            "image": "28.png",
+            "constraints": {
+                "left": [],
+                "right": [],
+                "up": [],
+                "down": []
+            }
+        },
+        {
+            "image": "29.png",
+            "constraints": {
+                "left": [],
+                "right": [],
+                "up": [],
+                "down": []
+            }
+        }
+    ]
+}
