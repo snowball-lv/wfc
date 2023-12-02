@@ -60,7 +60,7 @@ class Grid:
         self.timer = pygame.time.get_ticks()
         self.rows = []
         self.dy = 0
-        self.search_speed = 200
+        self.search_speed = 100
         self.num_rows = 0
         self.backtracking = False
         self.interp = Interpolator()
@@ -158,7 +158,7 @@ class Grid:
         win_width, win_height = pygame.display.get_surface().get_size()
         size = win_width / self.width
         top = win_height - (self.height) * size + self.dy
-        if top < 0 and self.interp.done:
+        if top < 100 and self.interp.done:
             self.interp.restart(self.dy, self.dy + abs(top) + 50)
         first_y = math.floor(self.dy / size)
         # print(f"first y {first_y}")
@@ -181,7 +181,51 @@ class Grid:
                  if len(cell.domain) == lowest]
         return random.choice(cells)
     
+    def get_constraint(self, tile_num, name):
+        return set(self.tile_desc["tiles"][tile_num]["constraints"][name])
+
+    def propagate_v2(self):
+        changed = False
+        for y in range(self.height):
+            for x in range(self.width):
+                cell = self.rows[y][x]
+                if cell.is_collapsed() or not cell.is_valid():
+                    continue
+                old_size = len(cell.domain)
+                domain = set(self.domain)
+                if x > 0:
+                    left_cell = self.rows[y][x - 1]
+                    right = set()
+                    for v in left_cell.domain:
+                        right = right.union(self.get_constraint(v, "right"))
+                    domain = domain.intersection(right)
+                if x < self.width - 1:
+                    right_cell = self.rows[y][x + 1]
+                    left = set()
+                    for v in right_cell.domain:
+                        left = left.union(self.get_constraint(v, "left"))
+                    domain = domain.intersection(left)
+                if y > 0:
+                    down_cell = self.rows[y - 1][x]
+                    up = set()
+                    for v in down_cell.domain:
+                        up = up.union(self.get_constraint(v, "up"))
+                    domain = domain.intersection(up)
+                if y < self.height - 1:
+                    up_cell = self.rows[y + 1][x]
+                    down = set()
+                    for v in up_cell.domain:
+                        down = down.union(self.get_constraint(v, "down"))
+                    domain = domain.intersection(down)
+                cell.domain = domain
+                if old_size != len(domain):
+                    changed = True
+        if changed:
+            self.propagate_v2()
+
     def propagate(self):
+        self.propagate_v2()
+        return
         todo = []
         for y in range(self.height):
             for x in range(self.width):
