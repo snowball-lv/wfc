@@ -57,10 +57,10 @@ class App:
     def gen_tiles(self):
         img_width, img_height = self.img.get_size()
         print(f"Size {img_width}x{img_height}")
-        # for y in range(0, img_height - self.tile_size, self.tile_size):
-        #     for x in range(0, img_width - self.tile_size, self.tile_size):
-        for y in range(0, img_height - self.tile_size):
-            for x in range(0, img_width - self.tile_size):
+        for y in range(0, img_height - self.tile_size, self.tile_size):
+            for x in range(0, img_width - self.tile_size, self.tile_size):
+        # for y in range(0, img_height - self.tile_size):
+        #     for x in range(0, img_width - self.tile_size):
                 i, tile = self.get_tile(x, y)
                 if x >= self.tile_size:
                     li, left = self.get_tile(x - self.tile_size, y)

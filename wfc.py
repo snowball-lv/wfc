@@ -55,7 +55,7 @@ class Grid:
 
     def __init__(self, game):
         self.game = game
-        self.width = 8
+        self.width = 10
         self.height = 1
         self.timer = pygame.time.get_ticks()
         self.rows = []
@@ -121,22 +121,28 @@ class Grid:
         images = [self.atlas[i] for i in cell.domain]
         img = self.blend_images(images)
         img = pygame.transform.scale(img, bounds[2:4])
+        # # cardinality
+        # font_surface = font.render(str(len(cell.domain)), True, (255, 0, 255))
+        # img.blit(font_surface, (0, 0))
+        # if len(cell.domain) == 1:
+        #     value = list(cell.domain)[0]
+        #     font_surface = font.render(str(value), True, (255, 0, 255))
+        #     img.blit(font_surface, (0, 0))
         self.game.win.blit(img, bounds[:2])
-        return
-        lsize = bounds[2] / dim
-        for i, v in enumerate(cell.domain):
-            lx = bounds[0] + (i % dim) * lsize
-            ly = bounds[1] + (i // dim) * lsize
-            # text label
-            # label = str(v)
-            # font_surface = font.render(label, True, (230, 230, 230))
-            # self.game.win.blit(font_surface, (lx, ly))
-            # img label
-            img = self.atlas[v]
-            # img = pygame.transform.scale(img, (lsize - 8, lsize - 8))
-            # self.game.win.blit(img, (lx + 4, ly + 4))
-            img = pygame.transform.scale(img, (lsize - 4, lsize - 4))
-            self.game.win.blit(img, (lx + 2, ly + 2))
+        # lsize = bounds[2] / dim
+        # for i, v in enumerate(cell.domain):
+        #     lx = bounds[0] + (i % dim) * lsize
+        #     ly = bounds[1] + (i // dim) * lsize
+        #     # text label
+        #     # label = str(v)
+        #     # font_surface = font.render(label, True, (230, 230, 230))
+        #     # self.game.win.blit(font_surface, (lx, ly))
+        #     # img label
+        #     img = self.atlas[v]
+        #     # img = pygame.transform.scale(img, (lsize - 8, lsize - 8))
+        #     # self.game.win.blit(img, (lx + 4, ly + 4))
+        #     img = pygame.transform.scale(img, (lsize - 4, lsize - 4))
+        #     self.game.win.blit(img, (lx + 2, ly + 2))
 
     def draw_cell(self, x, y):
         cell = self.rows[y][x]
@@ -235,10 +241,8 @@ class Grid:
                         self.backtracking = True
                     self.num_rows = len(self.rows)
                     self.rows[-1] = self.new_row()
-                    self.search_speed = 10
                     return
             self.backtracking = False
-            self.search_speed = 200
             self.rows.append(self.new_row())
             self.height += 1
             self.propagate()
@@ -262,6 +266,7 @@ class MyGame:
 
     def __init__(self, tile_dir):
         self.tile_dir = tile_dir
+        self.pause = False
 
     def draw(self, delta):
         self.win.fill((20, 20, 20))
@@ -290,8 +295,11 @@ class MyGame:
                         running = False
                     elif e.key == pygame.K_SPACE:
                         self.collapse()
-            self.update(delta)
-            self.draw(delta)
+                    elif e.key == pygame.K_p:
+                        self.pause = not self.pause
+            if not self.pause:
+                self.update(delta)
+                self.draw(delta)
             pygame.display.flip()
         pygame.quit()
 
