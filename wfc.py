@@ -55,11 +55,14 @@ class Grid:
 
     def __init__(self, game):
         self.game = game
-        self.width = 4
+        self.width = 8
         self.height = 1
         self.timer = pygame.time.get_ticks()
         self.rows = []
         self.dy = 0
+        self.search_speed = 200
+        self.num_rows = 0
+        self.backtracking = False
         self.interp = Interpolator()
         for _ in range(self.height):
             self.rows.append([Cell() for _ in range(self.width)])
@@ -221,12 +224,27 @@ class Grid:
         x, y, cell = self.pick_cell()
         if not cell:
             print("nothing to collapse!")
+            last_row = self.rows[-1]
+            for cell in last_row:
+                if not cell.is_valid():
+                    print("retrying last row!")
+                    if self.num_rows == len(self.rows) and not self.backtracking:
+                        print("row failed twice!")
+                        self.rows.pop()
+                        self.height -= 1
+                        self.backtracking = True
+                    self.num_rows = len(self.rows)
+                    self.rows[-1] = self.new_row()
+                    self.search_speed = 10
+                    return
+            self.backtracking = False
+            self.search_speed = 200
             self.rows.append(self.new_row())
             self.height += 1
             self.propagate()
             return
         v = random.choice(list(cell.domain))
-        print(f"collapsing {x}, {y}, ({len(cell.domain)}) to {v}")
+        # print(f"collapsing {x}, {y}, ({len(cell.domain)}) to {v}")
         cell.domain = set([v])
         self.propagate()
 
@@ -234,7 +252,7 @@ class Grid:
         self.interp.update()
         self.dy = self.interp.value
         now = pygame.time.get_ticks()
-        if now - self.timer > 1000:
+        if now - self.timer > self.search_speed:
             self.collapse()
             # process = psutil.Process()
             # print(f"{process.memory_info().rss / 1000000} MB")

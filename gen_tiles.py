@@ -14,6 +14,10 @@ class Tile:
 
     def __init__(self, img):
         self.img = img
+        self.left = set()
+        self.right = set()
+        self.up = set()
+        self.down = set()
 
     def cmp_img(self, img):
         width, height = self.img.get_size()
@@ -40,19 +44,41 @@ class App:
                 return (i, tile)
         return (0, None)
     
+    def get_tile(self, x, y):
+        img = self.img.subsurface(x, y, self.tile_size, self.tile_size)
+        i, tile = self.find_tile(img)
+        if tile:
+            return i, tile
+        else:
+            tile = Tile(img)
+            self.tiles.append(tile)
+            return len(self.tiles) - 1, tile
+
     def gen_tiles(self):
         img_width, img_height = self.img.get_size()
         print(f"Size {img_width}x{img_height}")
-        for y in range(0, img_height - self.tile_size, self.tile_size):
-            for x in range(0, img_width - self.tile_size, self.tile_size):
-                img = self.img.subsurface(x, y, self.tile_size, self.tile_size)
-                # sub_path = os.path.join(self.get_dir(), f"{x}-{y}.png")
-                # pygame.image.save(sub, sub_path)
-                i, tile = self.find_tile(img)
-                if tile:
-                    pass
-                else:
-                    self.tiles.append(Tile(img))
+        # for y in range(0, img_height - self.tile_size, self.tile_size):
+        #     for x in range(0, img_width - self.tile_size, self.tile_size):
+        for y in range(0, img_height - self.tile_size):
+            for x in range(0, img_width - self.tile_size):
+                i, tile = self.get_tile(x, y)
+                if x >= self.tile_size:
+                    li, left = self.get_tile(x - self.tile_size, y)
+                    tile.left.add(li)
+                    left.right.add(i)
+                if x <= img_width - 2 * self.tile_size:
+                    ri, right = self.get_tile(x + self.tile_size, y)
+                    tile.right.add(ri)
+                    right.left.add(i)
+                if y >= self.tile_size:
+                    ui, up = self.get_tile(x, y - self.tile_size)
+                    tile.up.add(ui)
+                    up.down.add(i)
+                if y <= img_height - 2 * self.tile_size:
+                    di, down = self.get_tile(x, y + self.tile_size)
+                    tile.down.add(di)
+                    down.up.add(i)
+
         print(f"Made {len(self.tiles)} tiles")
         self.save()
 
@@ -62,10 +88,10 @@ class App:
             info = {
                 "image": f"{i}.png",
                 "constraints": {
-                    "left": [],
-                    "right": [],
-                    "up": [],
-                    "down": []
+                    "left": list(tile.left),
+                    "right": list(tile.right),
+                    "up": list(tile.up),
+                    "down": list(tile.down)
                 }
             }
             tiles.append(info)
