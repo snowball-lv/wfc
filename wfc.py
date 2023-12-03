@@ -7,6 +7,7 @@ import os
 import math
 import random
 import numpy
+import cv2
 
 def usage():
     print("Usage: ./wfc.py path_to_tile_dir")
@@ -60,7 +61,7 @@ class Grid:
         self.timer = pygame.time.get_ticks()
         self.rows = []
         self.dy = 0
-        self.search_speed = 100
+        self.search_speed = 400
         self.num_rows = 0
         self.backtracking_level = 0
         self.graying_start_time = 0
@@ -291,12 +292,14 @@ class Grid:
                         self.height -= 1
                         if self.backtracking_level == 0:
                             self.graying_start_time = pygame.time.get_ticks()
+                            self.search_speed = 50
                         self.backtracking_level += 1
                     self.num_rows = len(self.rows)
                     self.rows[-1] = self.new_row()
                     return
             if self.backtracking_level == 1:
                 self.graying_end_time = pygame.time.get_ticks()
+                self.search_speed = 400
             self.backtracking_level = max(self.backtracking_level - 1, 0)
             self.rows.append(self.new_row())
             self.height += 1
@@ -325,6 +328,19 @@ class MyGame:
 
     def draw(self, delta):
         self.win.fill((20, 20, 20))
+        success, video_image = self.video.read()
+        if not success:
+            print("failed video read, looping")
+            self.video.set(cv2.CAP_PROP_POS_FRAMES, 0)
+            success, video_image = self.video.read()
+        if success:
+            # avg_5x5 = numpy.ones((5, 5), numpy.float32) / 25.0
+            # video_image = cv2.filter2D(video_image, -1, avg_5x5)
+            surf = pygame.image.frombuffer(video_image.tobytes(), 
+                                           video_image.shape[1::-1], "BGR")
+            vw, vh = surf.get_size()
+            ww, wh = self.win.get_size()
+            self.win.blit(surf, (ww - vw, 0))
         self.grid.draw()
 
     def collapse(self):
@@ -349,6 +365,9 @@ class MyGame:
         running = True
         self.grid = Grid(self)
         self.grayscale = False
+        # https://stackoverflow.com/a/69054207
+        self.video = cv2.VideoCapture("clouds.mp4")
+        success, video_image = self.video.read()
         while running:
             delta = clock.tick(60) / 1000
             for e in pygame.event.get():
