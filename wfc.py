@@ -62,7 +62,7 @@ class Grid:
         self.dy = 0
         self.search_speed = 100
         self.num_rows = 0
-        self.backtracking = False
+        self.backtracking_level = 0
         self.interp = Interpolator()
         for _ in range(self.height):
             self.rows.append([Cell() for _ in range(self.width)])
@@ -283,15 +283,15 @@ class Grid:
             for cell in last_row:
                 if not cell.is_valid():
                     print("retrying last row!")
-                    if self.num_rows == len(self.rows) and not self.backtracking:
-                        print("row failed twice!")
+                    if self.num_rows == len(self.rows) and self.backtracking_level < 3:
+                        print("row failed twice, backtracking!")
                         self.rows.pop()
                         self.height -= 1
-                        self.backtracking = True
+                        self.backtracking_level += 1
                     self.num_rows = len(self.rows)
                     self.rows[-1] = self.new_row()
                     return
-            self.backtracking = False
+            self.backtracking_level = max(self.backtracking_level - 1, 0)
             self.rows.append(self.new_row())
             self.height += 1
             self.propagate()
