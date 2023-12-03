@@ -6,7 +6,6 @@ import json
 import os
 import math
 import random
-import psutil
 import numpy
 
 def usage():
@@ -64,6 +63,8 @@ class Grid:
         self.search_speed = 100
         self.num_rows = 0
         self.backtracking_level = 0
+        self.graying_start_time = 0
+        self.graying_end_time = 0
         self.interp = Interpolator()
         for _ in range(self.height):
             self.rows.append([Cell() for _ in range(self.width)])
@@ -288,10 +289,14 @@ class Grid:
                         print("row failed twice, backtracking!")
                         self.rows.pop()
                         self.height -= 1
+                        if self.backtracking_level == 0:
+                            self.graying_start_time = pygame.time.get_ticks()
                         self.backtracking_level += 1
                     self.num_rows = len(self.rows)
                     self.rows[-1] = self.new_row()
                     return
+            if self.backtracking_level == 1:
+                self.graying_end_time = pygame.time.get_ticks()
             self.backtracking_level = max(self.backtracking_level - 1, 0)
             self.rows.append(self.new_row())
             self.height += 1
@@ -363,6 +368,23 @@ class MyGame:
             if not self.pause:
                 self.update(delta)
                 self.draw(delta)
+            if self.grid.backtracking_level > 0:
+                delta = pygame.time.get_ticks() - self.grid.graying_start_time
+                f = min(delta / 3000, 1.0)
+                gray = self.convert_to_grayscale(self.win)
+                a = pygame.surfarray.array3d(self.win)
+                b = pygame.surfarray.array3d(gray)
+                fade = a * (1 - f) + b * f
+                self.win.blit(pygame.surfarray.make_surface(fade), (0, 0))
+            else:
+                delta = pygame.time.get_ticks() - self.grid.graying_end_time
+                f = min(delta / 1000, 1.0)
+                if f < 1.0:
+                    gray = self.convert_to_grayscale(self.win)
+                    a = pygame.surfarray.array3d(self.win)
+                    b = pygame.surfarray.array3d(gray)
+                    fade = a * f + b * (1 - f)
+                    self.win.blit(pygame.surfarray.make_surface(fade), (0, 0))
             if self.grayscale:
                 # img_array = pygame.surfarray.array3d(self.win.convert())
                 # gray = numpy.dot(img_array[...,:3], [0.2989, 0.5870, 0.1140])
