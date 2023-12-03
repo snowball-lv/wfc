@@ -7,6 +7,7 @@ import os
 import math
 import random
 import psutil
+import numpy
 
 def usage():
     print("Usage: ./wfc.py path_to_tile_dir")
@@ -28,7 +29,7 @@ class Interpolator:
     def __init__(self):
         self.restart(0, 0)
 
-    def restart(self, a, b, duration = 1.0):
+    def restart(self, a, b, duration = 2.0):
         self.a = a
         self.b = b
         self.value = a
@@ -163,7 +164,7 @@ class Grid:
         win_width, win_height = pygame.display.get_surface().get_size()
         size = win_width / self.width
         top = win_height - (self.height) * size + self.dy
-        if top < 100 and self.interp.done:
+        if top < 150 and self.interp.done:
             self.interp.restart(self.dy, self.dy + abs(top) + 50)
         first_y = math.floor(self.dy / size)
         # print(f"first y {first_y}")
@@ -327,6 +328,14 @@ class MyGame:
     def update(self, delta):
         self.grid.update(delta)
 
+    # https://stackoverflow.com/a/65919555
+    def convert_to_grayscale(self, surface: pygame.Surface):
+        arr = pygame.surfarray.pixels3d(surface)
+        mean_arr = numpy.dot(arr[:,:,:], [0.216, 0.587, 0.144])
+        mean_arr3d = mean_arr[..., numpy.newaxis]
+        new_arr = numpy.repeat(mean_arr3d[:, :, :], 3, axis=2)
+        return pygame.surfarray.make_surface(new_arr)
+
     def run(self):
         pygame.init()
         self.win = pygame.display.set_mode((400, 733))
@@ -334,6 +343,7 @@ class MyGame:
         clock = pygame.time.Clock()
         running = True
         self.grid = Grid(self)
+        self.grayscale = False
         while running:
             delta = clock.tick(60) / 1000
             for e in pygame.event.get():
@@ -348,9 +358,16 @@ class MyGame:
                         self.pause = not self.pause
                     elif e.key == pygame.K_r:
                         self.grid = Grid(self)
+                    elif e.key == pygame.K_g:
+                        self.grayscale = not self.grayscale
             if not self.pause:
                 self.update(delta)
                 self.draw(delta)
+            if self.grayscale:
+                # img_array = pygame.surfarray.array3d(self.win.convert())
+                # gray = numpy.dot(img_array[...,:3], [0.2989, 0.5870, 0.1140])
+                gray = self.convert_to_grayscale(self.win)
+                self.win.blit(gray, (0, 0))
             pygame.display.flip()
         pygame.quit()
 
