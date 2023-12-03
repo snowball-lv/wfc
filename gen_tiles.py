@@ -18,6 +18,8 @@ class Tile:
         self.right = set()
         self.up = set()
         self.down = set()
+        self.x = 0
+        self.y = 0
 
     def cmp_img(self, img):
         width, height = self.img.get_size()
@@ -51,6 +53,8 @@ class App:
             return i, tile
         else:
             tile = Tile(img)
+            tile.x = x
+            tile.y = y
             self.tiles.append(tile)
             return len(self.tiles) - 1, tile
 
@@ -87,6 +91,8 @@ class App:
         for i, tile in enumerate(self.tiles):
             info = {
                 "image": f"{i}.png",
+                "x": tile.x,
+                "y": tile.y,
                 "constraints": {
                     "left": list(tile.left),
                     "right": list(tile.right),

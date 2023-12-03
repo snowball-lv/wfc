@@ -74,9 +74,14 @@ class Grid:
             for cell in row:
                 cell.domain = set(self.domain)
         self.atlas = []
+        # for tile in self.tile_desc["tiles"]:
+        #     img_path = os.path.join(game.tile_dir, tile["image"])
+        #     self.atlas.append(pygame.image.load(img_path))
+        self.img_hq = pygame.image.load("scarf-hq.png")
         for tile in self.tile_desc["tiles"]:
-            img_path = os.path.join(game.tile_dir, tile["image"])
-            self.atlas.append(pygame.image.load(img_path))
+            rect = (tile["x"] * 10, tile["y"] * 10, 3 * 10, 3 * 10)
+            img = self.img_hq.subsurface(rect)
+            self.atlas.append(img)
 
     def new_row(self):
         row = [Cell() for _ in range(self.width)]
@@ -151,7 +156,7 @@ class Grid:
         abs_x = x * size
         abs_y = win_height - (y + 1) * size + self.dy
         rect = (abs_x, abs_y, size, size)
-        pygame.draw.rect(self.game.win, (200, 0, 0), rect)
+        # pygame.draw.rect(self.game.win, (200, 0, 0), rect)
         self.draw_label(x, y, rect)
 
     def draw(self):
@@ -341,6 +346,8 @@ class MyGame:
                         self.collapse()
                     elif e.key == pygame.K_p:
                         self.pause = not self.pause
+                    elif e.key == pygame.K_r:
+                        self.grid = Grid(self)
             if not self.pause:
                 self.update(delta)
                 self.draw(delta)
