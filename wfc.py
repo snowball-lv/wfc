@@ -61,7 +61,7 @@ class Grid:
         self.timer = pygame.time.get_ticks()
         self.rows = []
         self.dy = 0
-        self.search_speed = 400
+        self.search_speed = 300
         self.num_rows = 0
         self.backtracking_level = 0
         self.graying_start_time = 0
@@ -154,7 +154,7 @@ class Grid:
 
     def draw_cell(self, x, y):
         cell = self.rows[y][x]
-        win_width, win_height = pygame.display.get_surface().get_size()
+        win_width, win_height = self.game.win.get_size()
         size = win_width / self.width
         abs_x = x * size
         abs_y = win_height - (y + 1) * size + self.dy
@@ -163,10 +163,10 @@ class Grid:
         self.draw_label(x, y, rect)
 
     def draw(self):
-        win_width, win_height = pygame.display.get_surface().get_size()
+        win_width, win_height = self.game.win.get_size()
         size = win_width / self.width
         top = win_height - (self.height) * size + self.dy
-        if top < 150 and self.interp.done:
+        if top < 400 and self.interp.done:
             self.interp.restart(self.dy, self.dy + abs(top) + 50)
         first_y = math.floor(self.dy / size)
         # print(f"first y {first_y}")
@@ -299,7 +299,7 @@ class Grid:
                     return
             if self.backtracking_level == 1:
                 self.graying_end_time = pygame.time.get_ticks()
-                self.search_speed = 400
+                self.search_speed = 300
             self.backtracking_level = max(self.backtracking_level - 1, 0)
             self.rows.append(self.new_row())
             self.height += 1
@@ -327,20 +327,20 @@ class MyGame:
         self.pause = False
 
     def draw(self, delta):
-        self.win.fill((20, 20, 20))
-        success, video_image = self.video.read()
-        if not success:
-            print("failed video read, looping")
-            self.video.set(cv2.CAP_PROP_POS_FRAMES, 0)
-            success, video_image = self.video.read()
-        if success:
-            # avg_5x5 = numpy.ones((5, 5), numpy.float32) / 25.0
-            # video_image = cv2.filter2D(video_image, -1, avg_5x5)
-            surf = pygame.image.frombuffer(video_image.tobytes(), 
-                                           video_image.shape[1::-1], "BGR")
-            vw, vh = surf.get_size()
-            ww, wh = self.win.get_size()
-            self.win.blit(surf, (ww - vw, 0))
+        self.win.fill((0, 0, 0))
+        # success, video_image = self.video.read()
+        # if not success:
+        #     print("failed video read, looping")
+        #     self.video.set(cv2.CAP_PROP_POS_FRAMES, 0)
+        #     success, video_image = self.video.read()
+        # if success:
+        #     # avg_5x5 = numpy.ones((5, 5), numpy.float32) / 25.0
+        #     # video_image = cv2.filter2D(video_image, -1, avg_5x5)
+        #     surf = pygame.image.frombuffer(video_image.tobytes(), 
+        #                                    video_image.shape[1::-1], "BGR")
+        #     vw, vh = surf.get_size()
+        #     ww, wh = self.win.get_size()
+        #     self.win.blit(surf, (ww - vw, 0))
         self.grid.draw()
 
     def collapse(self):
@@ -359,14 +359,17 @@ class MyGame:
 
     def run(self):
         pygame.init()
-        self.win = pygame.display.set_mode((400, 733))
+        self.base_win = pygame.display.set_mode((400, 800))
+        self.win = pygame.surface.Surface((400, 800))
         self.font = pygame.font.Font(None, 24)
         clock = pygame.time.Clock()
+        pygame.mouse.set_visible(False)
         running = True
         self.grid = Grid(self)
         self.grayscale = False
         # https://stackoverflow.com/a/69054207
         self.video = cv2.VideoCapture("clouds.mp4")
+        self.rotate_left = False
         success, video_image = self.video.read()
         while running:
             delta = clock.tick(60) / 1000
@@ -384,6 +387,10 @@ class MyGame:
                         self.grid = Grid(self)
                     elif e.key == pygame.K_g:
                         self.grayscale = not self.grayscale
+                    elif e.key == pygame.K_f:
+                        self.base_win = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
+                    elif e.key == pygame.K_l:
+                        self.rotate_left = not self.rotate_left
             if not self.pause:
                 self.update(delta)
                 self.draw(delta)
@@ -409,6 +416,13 @@ class MyGame:
                 # gray = numpy.dot(img_array[...,:3], [0.2989, 0.5870, 0.1140])
                 gray = self.convert_to_grayscale(self.win)
                 self.win.blit(gray, (0, 0))
+            win = self.win
+            if self.rotate_left:
+                win = pygame.transform.rotate(win, 90)
+            bw, bh = self.base_win.get_size()
+            ww, wh = win.get_size()
+            self.base_win.fill((0, 0, 0))
+            self.base_win.blit(win, ((bw - ww) / 2, (bh - wh) / 2))
             pygame.display.flip()
         pygame.quit()
 

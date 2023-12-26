@@ -5,6 +5,7 @@ import pygame
 import os
 import shutil
 import json
+import numpy
 
 def usage():
     print("Usage: ./gen_tiles.py image.png tile-size")
@@ -22,6 +23,10 @@ class Tile:
         self.y = 0
 
     def cmp_img(self, img):
+        # surprisingly the numpy way is slower than brute forcing ==
+        # a = pygame.surfarray.array2d(self.img)
+        # b = pygame.surfarray.array2d(img)
+        # return numpy.array_equal(a, b)
         width, height = self.img.get_size()
         for y in range(height):
             for x in range(width):
