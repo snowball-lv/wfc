@@ -29,4 +29,9 @@ Pass the directory name generated in the previous step to `./wfc.py` to run your
 
 It's for a school project, hence the specific bottom-up order.
 
+### Source pattern, 69 x 69 pixels:  
+![](./scarf.png)
+
+### Live render:
+
 ![](./demo.gif)
