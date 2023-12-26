@@ -1,8 +1,15 @@
-A WFC implementation in pygame for a school project. I'll fill the readme out properly when I'm not in a rush to finish this anymore.
+WIP.  
+A WFC implementation in pygame for a university exhibit.  
+I'll see if I can clean it up and make it more general purpose.
 
 ## Description
 
-It contains 2 important scripts: `gen_tiles.py` which generates a tile set from a supplied image and `wfc.py` which will render the generated tile set.
+It contains 2 scripts: 
+
+- `gen_tiles.py` - generates a tile set from a supplied image
+- `wfc.py` - renders the generated tile set
+
+Make sure your source pattern is small and pixelated.
 
 ## Usage
 
@@ -10,7 +17,7 @@ It contains 2 important scripts: `gen_tiles.py` which generates a tile set from 
 ./gen_tiles.py your_image.png [tile_size]
 ```
 
-Creates a directory called `your_image` containing the generated tiles as well as a `.json` file describing adjacency constraints. `tile_size` is optional and default to 3 (i.e. 3x3 pixel tiles).
+Creates a directory called `your_image` containing the generated tiles as well as a `.json` file describing adjacency constraints. `tile_size` is optional and defaults to 3 (i.e. 3x3 pixel tiles).
 
 ```
 ./wfc.py your_image
