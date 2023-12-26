@@ -1,3 +1,4 @@
+WIP.
 A WFC implementation in pygame for a university exhibit.  
 I'll see if I can clean it up and make it more general purpose.
 
@@ -32,5 +33,7 @@ It's for a school project, hence the specific bottom-up order.
 ![](./scarf.png)
 
 ### Live render:
+
+It uses an overlayed high quality image over every tile, that's why it doesn't look pixelated.
 
 ![](./demo.gif)
