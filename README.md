@@ -1,4 +1,3 @@
-WIP.  
 A WFC implementation in pygame for a university exhibit.  
 I'll see if I can clean it up and make it more general purpose.
 
